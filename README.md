@@ -1,4 +1,5 @@
 # Off-the-Dome Recommendations
+------
 
 ### Care and Feeding of Devs:
 Create a "precommit" command which can run all the tests in the codebase, as well as any linting and/or analysis that is needed. This *should be* achievable via a Rake task, will probably be a bit tricky to get it working though.
@@ -68,7 +69,6 @@ See "Pairing with a capital 'P'" (link goes here)
 Pair programming as a practice has so many benefits that pay dividends as time goes on: it reduces knowledge silos, it upskills less experienced devs, it onboards new devs, it promotes communication and collaborative working, it leads to innovative and creative solutions. 
 
 ------
-------
 
 # The Art of Code Archaeology
 
@@ -119,9 +119,9 @@ OK - let's get messy.
 SG Example: `Gravy::Orders::ASAPTimeslot` had no unit tests around it, was (is) being implicitly tested by the tests around `Gravy::Throttle::AvailableWantedTimes`. Adding a test around existing functionality helped understand what it's doing, why, and gave confidence for proceeding with changes.
 
 #### Debug
-- thingy
-
-SG Example: dur dur
+- Effective debugging is crucial to understanding and navigating legacy code
+- `pry`, `byebug` etc. (to name  a few) are the kinds of tools you will need
+- Exercising the code you need to understand in debugging mode will increase your understanding of data flow, data mutation, and state changes
 
 #### Make a diagram
 - Map component interactions, create a sequence diagram, whatever works for you to help you understanding.
@@ -245,15 +245,71 @@ SG Example: see commit `fae030e2b0190d2e219f87eaac7ada334aa0738c`
 
 Implicit testing happens when dependencies of a class are not mocked/stubbed, so every case is covered at the higher level. This leads to tests with long, complex data setup and lots of test cases. The preferable thing to do is to test the dependencies in isolation and then stub them in the test.
 
-SG Example: humminnahummina *cough*. 
+SG Example: see commit `7b027da3327886fef869b73aa36caa4bab4b2d56` for the state I'm talking about
+`available_wanted_times_spec.rb` is doing a lot of implicit testing of underlying functionality. Case in point: Coverage of the functionality of  `ASAPTimeslot` takes up approximately **400 lines** of the test code in `available_wanted_times_spec.rb` (between lines `322` and `718`). The correct thing to do in this case is add coverage in isolation around `ASAPTimeslot` and then stub out the dependency in the test around `AvailableWantedTimes`.
 
 **Don't exercise non-test code that is not part of the subject in the test**
 
 Depending on implementation outside of the subject under test for the test to work can lead to issues later, because if that implementation changes, the tests will break for incorrect reasons. 
 
-Example: humminnahummina *cough*. 
+SG Example: see commit `7b027da3327886fef869b73aa36caa4bab4b2d56` for the state I'm talking about
+`available_wanted_times_spec.rb` calls `Restaurant#available_wanted_times` in order to set up expectations (among other things, but let's focus on this one example). See below (with added comments):
+```ruby
+it 'shows WANTED_TIME as available time' do
+    parent_restaurant.update(throttle_default_size: throttle_default_size + 1)
+    # !! Setting up expectation via the behavior of a class outside of the class under test
+    timeslots = parent_order.restaurant.available_wanted_times(
+      parent_order.first_possible_wanted_time(parent_throttle_settings.lead_minutes)
+    )
+    available_slots = Gravy::Throttle::AvailableWantedTimes
+                        .new(parent_order, parent_throttle_settings).call
+
+    # !! If the implementation of Restaurant#available_wanted_times changes,
+    #    this expectation could (is likely to) fail for an obscure reason
+    expect(available_slots.count).to eq(timeslots.count)
+    expect(available_slots.first[:original].strftime('%I:%M%p'))
+      .to eq '01:30PM'
+  end
+```
+The correct approach here would be to make sure there are adequate tests around `Restaurant#available_wanted_times`. Then expect on the call to `Restaurant#available_wanted_times`, and return a known quantity. An improvement on this specific test would look like this:
+
+```ruby
+it 'shows WANTED_TIME as available time' do
+  parent_restaurant.update(throttle_default_size: throttle_default_size + 1)
+
+  # Setting up the timeslot array as a known value
+  Time.zone = 'Eastern Time (US & Canada)'
+  timeslots = [
+    {
+      original: Time.zone.parse('2020-04-01 13:30:00'),
+      formatted: 'Wednesday, 1:30PM',
+      max_slots: 3
+    }
+  ]
+
+  # Expect on the call, and return the known value
+  # Ideally there would be a `.with()` between `.expects()` and `.returns()`
+  # so we can verify that given an output from the previous dependency,
+  # this dependency is called with that output
+  parent_order.restaurant.expects(:available_wanted_times)
+    .returns(timeslots)
+
+  available_slots = Gravy::Throttle::AvailableWantedTimes
+                      .new(parent_order, parent_throttle_settings).call
+
+  # Expect based on the known value above
+  expect(available_slots.count).to eq(1)
+  expect(available_slots.first[:original].strftime('%I:%M%p'))
+    .to eq '01:30PM'
+end
+```
+
+------
+### Conclusion
+
+This is meant as a helpful guide, a dump of thoughts and experiences, and is not meant to be prescriptive, definitive, or final. You know the drill.
 
 ------
 
 ###### *Thank you,*
-###### *-- adrienne*
+###### *-- adrienne ([@ahisbrook](https://github.com/ahisbrook))*
