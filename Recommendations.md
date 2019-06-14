@@ -1,5 +1,4 @@
 # Off-the-Dome Recommendations
-------
 
 ### Care and Feeding of Devs:
 Create a "precommit" command which can run all the tests in the codebase, as well as any linting and/or analysis that is needed. This *should be* achievable via a Rake task, will probably be a bit tricky to get it working though.
