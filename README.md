@@ -12,8 +12,6 @@ These are structured with a problem statement, the description of the recommenda
 
 All of these are practices that I, personally, have "used in anger" (i.e. on a project, for real, in the wild).
 
-............
-
 #### + Kickoff & Desk Check
 
 *The problem:*
