@@ -102,19 +102,21 @@ Some tips off the bat:
 - Become deeply, intimately, *uncomfortably* familiar with your unit testing framework(s) (JUnit, RSpec, Mocha, Sinon, Jest, etc). It's your new best friend, mother, and erstwhile lover.
 - Find an IDE/editor with really good intellisense that lets you navigate quickly and easily. Invest time in trying different things and experiementing with plugins and extensions - anything to reduce your cognitive overhead. Your brainpower will be needed elsewhere.
 
+Caveat: I will be focusing primarily on talking about testing in this document, but there are many different aspects to talk about regarding this subject, and this is by no means a full and complete
+
 OK - let's get messy.
 
 ------
 
-## Part 1: Establishing understanding of current state before making changes
+## Part 1: Getting Your Bearings
 
-- Often tests (if any) are at a "higher" level - this leads to setup fatigue (too many dominoes)
+The first hurdle to working with any legacy codebase is just understanding what on God's green earth is even happening. Establishing an understanding of current state and functionality is key. There are many tools in your toolbelt that you can use for this task. My top three are:
 
 #### Write a test
 - Use the interface as it appears to be meant to be used and see what breaks
 - Kick the tires, abuse the code a bit -- play with the inputs, dependencies
 - The test is your playground for exercising the code, you can always delete it later
-- Writing a test for existing functionality gives you peace of mind when making changes that you aren't causing regression
+- **Writing a test for existing functionality gives you peace of mind when making changes that you aren't causing regression**
 
 SG Example: `Gravy::Orders::ASAPTimeslot` had no unit tests around it, was (is) being implicitly tested by the tests around `Gravy::Throttle::AvailableWantedTimes`. Adding a test around existing functionality helped understand what it's doing, why, and gave confidence for proceeding with changes.
 
@@ -128,6 +130,16 @@ SG Example: `Gravy::Orders::ASAPTimeslot` had no unit tests around it, was (is) 
 - Use frameworks like UML and C4 as guidelines or jumping-off points; don't get hung up on the implementation details. Do what feels right and makes sense for you.
 
 SG Example: Making a component(ish) diagram of `Gravy::Api::V1::OrdersController#update` helped understanding of all of the interactions, shed light on the sheer number of code paths as well as the level of orchestration needed for this flow.
+
+#### Static analysis
+- Use any of the myriad static analysis tools at your disposal to quickly crunch some numbers
+- Code coverage (with a report on covered and uncovered code) - this can help you figure out which parts of the codebase are probably the "least safe" to make changes in, and target places for increased test coverage.
+- Cyclomatic complexity scores - A cyclomatic complexity score for a given method is the number of independent code paths through that method. You can use this as a baseline for the number of unit tests needed around that method.
+
+#### Use git blame to your advantage
+- If you find something particularly knotty or hard to understand, look for clues as to who in the organization may have any context
+- Git blame is useful for this
+- Comments - a heavily commented section of code is probably one which someone else has wrestled with in the past; see if you can find out who and talk to them
 
 ------
 
