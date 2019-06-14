@@ -192,45 +192,73 @@ class CheckSubtotaler
 end
 ```
 
-And here is its test
+And here is its test file:
 
 ```ruby
 describe CheckSubtotaler do
-  it 'should sum all item prices and generate recommended tips' do
-    # * Given - setup the input data
-    items = [
-      { name: 'potato skins', price: 9.95 },
-      { name: 'turkey burger', price: 12.05 }
-    ]
+    context 'items are present on the check' do
+      # Given - set up the data
+      let(:items) do
+        [
+          { name: 'potato skins', price: 9.95 },
+          { name: 'turkey burger', price: 12.05 }
+        ]
+      end
 
-    # Controlling the variables - this is the data that the dependency will 
-    # return. It is intentionally nonsensical because all we care about is 
-    # that it is present in the return value and the same as what the 
-    # dependency returned
-    recommended_tips = {
-      fifteen_percent: 1.1,
-      eighteen_percent: 2.3,
-      twenty_percent: 4.6
-    }
+      it 'should sum all item prices and generate recommended tips' do
+        # Set up a controlled for value
+        recommended_tips = {
+          fifteen_percent: 1.1,
+          eighteen_percent: 2.3,
+          twenty_percent: 4.6
+        }
 
-    # Expectation + stubbing
-    expected_subtotal = 22.0
-    RecommendedTipCalculator.expects(:call)
-                            .with(expected_subtotal)
-                            .returns(recommended_tips)
+        # Expectation + stubbing with controlled for value
+        expected_subtotal = 22.0
+        RecommendedTipCalculator.expects(:call)
+                                .with(expected_subtotal)
+                                .returns(recommended_tips)
 
-    # * When - invoke the method under test (subject)
-    actual = CheckSubtotaler.call(items)
+        # When - invoke the method under test (subject)
+        actual = CheckSubtotaler.call(items)
 
-    # * Then - expect on the return value (actual vs. expected)
-    expect(actual).to eq(
-      subtotal: expected_subtotal,
-      recommended_tips: recommended_tips)
+        # Then - expect on the return value (actual vs. expected)
+        expect(actual).to eq(
+          subtotal: expected_subtotal,
+          recommended_tips: recommended_tips
+        )
+      end
+    end
+
+    context 'items is nil' do
+      # Given - set up the data
+      #   This level of explicitness, while technically unnecessary,
+      #   is helpful for maintainability
+      let(:items) { nil }
+
+      it 'should throw an exception' do
+        # When + Then - invoking the method and expecting on the raising of
+        # an error
+        expect { CheckSubtotaler.call(items) }.to raise_error('Nothing here')
+      end
+    end
+
+    context 'items does not respond to sum' do
+      # Given - set up the data
+      #   This level of explicitness, while technically unnecessary,
+      #   is helpful for maintainability
+      let(:items) { Object.new }
+
+      it 'should throw an exception' do
+        # When + Then - invoking the method and expecting on the raising of
+        # an error
+        expect { CheckSubtotaler.call(items) }.to raise_error('Unable to sum')
+      end
+    end
   end
-end
 ```
 
-The dependency is stubbed and also expected on, all variables are controlled for, and the happy code path is covered.
+The dependency is stubbed and also expected on, all variables are controlled for, and the every code path is covered.
 
 ### General best practices
 
