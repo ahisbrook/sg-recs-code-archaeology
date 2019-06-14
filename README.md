@@ -1,7 +1,3 @@
-Yes, I wrote it for Manheim. We were writing a new platform that would, in time, replace the AS400 system as the system-of-record; however in the meantime we had to keep the two in sync. So we had data which originated by being entered into the AS400 green-screen; it would be picked up by our synchronizing app and propagated to the new platform. Now, how do we test that E2E? We need to seed data in AS400 somehow, and trying to unpack the byzantine table structure was a path that had already been explored and was more or less unsuccessful as an effective strategy. So the other way is to enter the data by going through green-screen flows. We have SMEs who could do this in their sleep. So: we need a DSL for this problem space, and we need it to be able to be run headlessly on CI. We need it to be intuitive for the people who know the green-screens backwards and forwards, as well as developers. Hence, antimony.
-
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 # Off-the-Dome Recommendations
 
 ### Care and Feeding of Devs:
