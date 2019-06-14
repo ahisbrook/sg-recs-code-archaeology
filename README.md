@@ -147,6 +147,8 @@ SG Example: Making a component(ish) diagram of `Gravy::Api::V1::OrdersController
 
 Testing is important in general, but it is absolutely crucial to understanding legacy code. Using your automated testing frameworks is a key component to understanding your legacy codebase.
 
+Making sure the code is covered to your comfort level is also crucial to working with legacy code. Writing tests for existing functionality is an exercise you should engage in frequently. **Once you are confident that the existing code is adequately covered, you can safely make changes to it.**
+
 - Use tests as your playground when trying to understand the codebase
 - Any "I wonder..." moment could and should lead to a test being written (e.g. "I wonder what would happen if I called methodX with valueY?" - write a test, see what happens, find the answer)
 
@@ -189,7 +191,18 @@ This list is not by any means exhaustive, but does represent the most common tes
 
 ### Anatomy of a Well-Formed Unit Test
 
+A basic test (of any level) would consist of the following:
+- **Subject** - the subject is the thing under test (can alternately refer to a class or individual method)
+- **Setup/Input** - this is the data you are invoking the subject with
+- **Expected** - this is the expected return value of the subject given the input
+- **Actual** - this is the output of the subject, and you should assert that it matches the **expected**
+- **Dependencies** - these are any external code called by the subject, and should be expected on and mocked/stubbed
+
+***The degree to which dependencies are stubbed is primarily what differentiates test levels from one another.***
+
 Here's an example of a class which does independent logic (summing the prices) and also calls a dependency (`RecommendedTipCalculator`).
+
+In this example, `CheckSubtotaler` is the **subject** under test.
 
 ```ruby
 class CheckSubtotaler
