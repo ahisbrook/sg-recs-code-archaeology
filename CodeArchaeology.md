@@ -229,7 +229,7 @@ Implicit testing happens when dependencies of a class are not mocked/stubbed, so
 SG Example: see commit `7b027da3327886fef869b73aa36caa4bab4b2d56` for the state I'm talking about
 `available_wanted_times_spec.rb` is doing a lot of implicit testing of underlying functionality. Case in point: Coverage of the functionality of  `ASAPTimeslot` takes up approximately **400 lines** of the test code in `available_wanted_times_spec.rb` (between lines `322` and `718`). The correct thing to do in this case is add coverage in isolation around `ASAPTimeslot` and then stub out the dependency in the test around `AvailableWantedTimes`.
 
-**Don't exercise non-test code that is not part of the subject in the test**
+**Don't exercise non-test code that is not part of the subject**
 
 Depending on implementation outside of the subject under test for the test to work can lead to issues later, because if that implementation changes, the tests will break for incorrect reasons. 
 
@@ -288,9 +288,8 @@ end
 ------
 ### Conclusion
 
-This is meant as a helpful guide, a dump of thoughts and experiences, and is not meant to be prescriptive, definitive, or final. You know the drill.
+This is meant as a helpful guide, a dump of thoughts and experiences, and is not meant to be prescriptive, definitive, or final, etc. You know the drill.
 
 ------
 
-###### *Thank you,*
-###### *-- adrienne ([@ahisbrook](https://github.com/ahisbrook))*
+##### *-- adrienne ([@ahisbrook](https://github.com/ahisbrook), [ThoughtWorks](https://www.thoughtworks.com/profiles/adrienne-hisbrook))*
