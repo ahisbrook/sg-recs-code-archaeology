@@ -60,7 +60,7 @@ This is another great way of taking load off of the tech lead's shoulders, as we
 ***Knowledge sharing, upskilling, and onboarding issues***
 
 *The solution:*
-See "Pairing with a capital 'P'" (link goes here)
+See [Pairing with a capital P](https://drive.google.com/drive/folders/18LLYAiSGWMIdEr8YIr1Oxf59vNWkzTB0)
 
 *Value:*
 Pair programming as a practice has so many benefits that pay dividends as time goes on: it reduces knowledge silos, it upskills less experienced devs, it onboards new devs, it promotes communication and collaborative working, it leads to innovative and creative solutions. 
