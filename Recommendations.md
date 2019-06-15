@@ -1,4 +1,7 @@
-# Off-the-Dome Recommendations
+# Off-the-Dome
+
+### Context:
+These are some miscellaneous thoughts and suggestions, based on observations that I (as a ThoughtWorks developer/consultant) have had over the past ~4 weeks of being embedded in the 3.0 Gravy team and the ThoughtWorks 3.0 discovery work. These are from the point of view of a developer/tech lead for the most part, given that is my role.
 
 ### Care and Feeding of Devs:
 Create a "precommit" command which can run all the tests in the codebase, as well as any linting and/or analysis that is needed. This *should be* achievable via a Rake task, will probably be a bit tricky to get it working though.
