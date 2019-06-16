@@ -14,7 +14,7 @@ So you've inherited a legacy codebase. A big, messy pile of spaghetti code; it's
 
 If it sounds like I'm speaking from experience, it's because I am. 
 
-First off, yeah, it's a bummer. All of your feelings and gripes are valid and correct and don't let anyone tell you otherwise. Hold on to those gripes; you can use them to drive change.
+First off: yeah, it's a bummer. All of your feelings and gripes are valid and correct and don't let anyone tell you otherwise. Hold on to those gripes; you can use them to drive change.
 
 However, this is the reality you're in. No mistake about it, this is dangerous territory: **here be dragons**. The unfortunate news is, you ***do*** have to go into this dungeon and face the monsters within; but there's no reason you have to do it unarmed and unprepared. 
 
@@ -38,7 +38,7 @@ OK - let's get messy.
 
 ## Part 1: Getting Your Bearings
 
-The first hurdle to working with any legacy codebase is just understanding what on God's green earth is even happening. Establishing an understanding of current state and functionality is key. There are many tools in your toolbelt that you can use for this task. My top three are:
+The first hurdle to working with any legacy codebase is just understanding what on God's green earth is even happening. Establishing an understanding of current state and functionality is key. There are many tools in your toolbelt that you can use for this task. Here are a few:
 
 #### Write a test
 - Use the interface as it appears to be meant to be used and see what breaks
@@ -75,7 +75,7 @@ SG Example: Making a component(ish) diagram of `Gravy::Api::V1::OrdersController
 
 Testing is important in general, but it is absolutely crucial to understanding legacy code. Using your automated testing frameworks is a key component to understanding your legacy codebase.
 
-Making sure the code is covered to your comfort level is also crucial to working with legacy code. Writing tests for existing functionality is an exercise you should engage in frequently. **Once you are confident that the existing code is adequately covered, you can safely make changes to it.**
+Making sure the code is covered to your comfort level is also critical to working with legacy code. Writing tests for existing functionality is an exercise you should engage in frequently. **Once you are confident that the existing code is adequately covered, you can safely make changes to it.**
 
 - Use tests as your playground when trying to understand the codebase
 - Any "I wonder..." moment could and should lead to a test being written (e.g. "I wonder what would happen if I called methodX with valueY?" - write a test, see what happens, find the answer)
@@ -120,13 +120,19 @@ This list is not by any means exhaustive, but does represent the most common tes
 ### Anatomy of a Well-Formed Unit Test
 
 A basic test (of any level) would consist of the following:
-- **Subject** - the subject is the thing under test (can alternately refer to a class or individual method)
-- **Setup/Input** - this is the data you are invoking the subject with
+- **Subject** - the subject is the thing under test (can alternately refer to a class or individual method, or an endpoint)
+- **Input** - this is the data you are invoking the subject with
 - **Expected** - this is the expected return value of the subject given the input
 - **Actual** - this is the output of the subject, and you should assert that it matches the **expected**
 - **Dependencies** - these are any external code called by the subject, and should be expected on and mocked/stubbed
 
 ***The degree to which dependencies are stubbed is primarily what differentiates test levels from one another.***
+
+###### Given, When, Then
+> The syntax of "Given, When, Then" is sometimes used to write acceptance criteria. However, it relates directly to how to write a test, and any line of test code can be directly related back to one of these structures.
+> **Given** - this is the setup you need to do prior to the invocation of the subject. This is where you are controlling for variables, inputs, and dependencies.
+> **When** - this is the invocation of the subject under test.
+> **Then** - this is any expectations, assertions, or verifications.
 
 Here's an example of a class which does independent logic (summing the prices) and also calls a dependency (`RecommendedTipCalculator`).
 
@@ -159,14 +165,14 @@ describe CheckSubtotaler do
       end
 
       it 'should sum all item prices and generate recommended tips' do
-        # Set up a controlled for value
+        # Given - Set up a controlled for value
         recommended_tips = {
           fifteen_percent: 1.1,
           eighteen_percent: 2.3,
           twenty_percent: 4.6
         }
 
-        # Expectation + stubbing with controlled for value
+        # Given (stubbing) + Then (expectation)
         expected_subtotal = 22.0
         RecommendedTipCalculator.expects(:call)
                                 .with(expected_subtotal)
