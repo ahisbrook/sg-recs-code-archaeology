@@ -27,10 +27,10 @@ Here are some things to keep in mind as you're adventuring through legacy code:
 - The journey is often worth as much or more than the destination, especially in the beginning
 
 Some tips off the bat:
-- Become deeply, intimately, *uncomfortably* familiar with your unit testing framework(s) (JUnit, RSpec, Mocha, Sinon, Jest, etc). It's your new best friend, mother, and erstwhile lover.
-- Find an IDE/editor with really good intellisense that lets you navigate quickly and easily. Invest time in trying different things and experiementing with plugins and extensions - anything to reduce your cognitive overhead. Your brainpower will be needed elsewhere.
+- Become deeply, intimately, *uncomfortably* familiar with your unit testing framework(s) (JUnit, RSpec, Mocha, Sinon, Jest, etc). It's your new best friend.
+- Find an IDE/editor with really good intellisense that lets you navigate quickly and easily. Invest time in trying different things and experimenting with plugins and extensions - anything to reduce your cognitive overhead. Your brainpower will be needed elsewhere.
 
-Caveat: I will be focusing primarily on talking about testing in this document, but there are many different aspects to talk about regarding this subject, and this is by no means a full and complete
+Caveat: I will be focusing primarily on talking about testing in this document, but there are many different aspects to talk about regarding this subject, and this is by no means a full or complete accounting of everything to do with legacy code.
 
 OK - let's get messy.
 
@@ -38,7 +38,7 @@ OK - let's get messy.
 
 ## Part 1: Getting Your Bearings
 
-The first hurdle to working with any legacy codebase is just understanding what on God's green earth is even happening. Establishing an understanding of current state and functionality is key. There are many tools in your toolbelt that you can use for this task. Here are a few:
+The first hurdle to working with any legacy codebase is just understanding what on God's green earth is even happening. Establishing an understanding of current state and functionality is key. There are many tools in your toolbelt that you can use for this task. My top three are:
 
 #### Write a test
 - Use the interface as it appears to be meant to be used and see what breaks
@@ -75,7 +75,7 @@ SG Example: Making a component(ish) diagram of `Gravy::Api::V1::OrdersController
 
 Testing is important in general, but it is absolutely crucial to understanding legacy code. Using your automated testing frameworks is a key component to understanding your legacy codebase.
 
-Making sure the code is covered to your comfort level is also critical to working with legacy code. Writing tests for existing functionality is an exercise you should engage in frequently. **Once you are confident that the existing code is adequately covered, you can safely make changes to it.**
+Making sure the code is covered to your comfort level is also crucial to working with legacy code. Writing tests for existing functionality is an exercise you should engage in frequently. **Once you are confident that the existing code is adequately covered, you can safely make changes to it.**
 
 - Use tests as your playground when trying to understand the codebase
 - Any "I wonder..." moment could and should lead to a test being written (e.g. "I wonder what would happen if I called methodX with valueY?" - write a test, see what happens, find the answer)
@@ -117,22 +117,23 @@ This list is not by any means exhaustive, but does represent the most common tes
 - To be run post-deployment in all environments
 - All integrations are real
 
-### Anatomy of a Well-Formed Unit Test
+### Anatomy of a Well-Formed Test
 
 A basic test (of any level) would consist of the following:
-- **Subject** - the subject is the thing under test (can alternately refer to a class or individual method, or an endpoint)
-- **Input** - this is the data you are invoking the subject with
+- **Subject** - the subject is the thing under test (can alternately refer to a class or individual method)
+- **Setup/Input** - this is the data you are invoking the subject with
 - **Expected** - this is the expected return value of the subject given the input
 - **Actual** - this is the output of the subject, and you should assert that it matches the **expected**
-- **Dependencies** - these are any external code called by the subject, and should be expected on and mocked/stubbed
+- **Dependencies** - these are any external code called by the subject, and should be expected on and mocked/stubbed if needed
+- **Boundary** - this is an implicit part of the test, and refers to the breadth of the **subject**. In a unit test the boundary is narrow, e.g. a single method
 
-***The degree to which dependencies are stubbed is primarily what differentiates test levels from one another.***
+##### Given, When, Then
 
-###### Given, When, Then
-> The syntax of "Given, When, Then" is sometimes used to write acceptance criteria. However, it relates directly to how to write a test, and any line of test code can be directly related back to one of these structures.
-> **Given** - this is the setup you need to do prior to the invocation of the subject. This is where you are controlling for variables, inputs, and dependencies.
-> **When** - this is the invocation of the subject under test.
-> **Then** - this is any expectations, assertions, or verifications.
+The syntax of "Given, When, Then" is sometimes used to write acceptance criteria. However, it relates directly to how to write a test, and any line of test code can be directly related back to one of these structures.
+
+**Given** - this is the setup you need to do prior to the invocation of the subject. This is where you are controlling for variables, inputs, and dependencies.
+**When** - this is the invocation of the subject under test.
+**Then** - this is any expectations, assertions, or verifications.
 
 Here's an example of a class which does independent logic (summing the prices) and also calls a dependency (`RecommendedTipCalculator`).
 
@@ -165,14 +166,14 @@ describe CheckSubtotaler do
       end
 
       it 'should sum all item prices and generate recommended tips' do
-        # Given - Set up a controlled for value
+        # Set up a controlled for value
         recommended_tips = {
           fifteen_percent: 1.1,
           eighteen_percent: 2.3,
           twenty_percent: 4.6
         }
 
-        # Given (stubbing) + Then (expectation)
+        # Expectation + stubbing with controlled for value
         expected_subtotal = 22.0
         RecommendedTipCalculator.expects(:call)
                                 .with(expected_subtotal)
@@ -233,7 +234,7 @@ SG Example: see commit `fae030e2b0190d2e219f87eaac7ada334aa0738c`
 Implicit testing happens when dependencies of a class are not mocked/stubbed, so every case is covered at the higher level. This leads to tests with long, complex data setup and lots of test cases. The preferable thing to do is to test the dependencies in isolation and then stub them in the test.
 
 SG Example: see commit `7b027da3327886fef869b73aa36caa4bab4b2d56` for the state I'm talking about
-`available_wanted_times_spec.rb` is doing a lot of implicit testing of underlying functionality. Case in point: Coverage of the functionality of  `ASAPTimeslot` takes up approximately **400 lines** of the test code in `available_wanted_times_spec.rb` (between lines `322` and `718`). The correct thing to do in this case is add coverage in isolation around `ASAPTimeslot` and then stub out the dependency in the test around `AvailableWantedTimes`.
+`available_wanted_times_spec.rb` is doing a lot of implicit testing of underlying functionality. Case in point: Coverage of the functionality of `ASAPTimeslot` takes up approximately **400 lines** of the test code in `available_wanted_times_spec.rb` (between lines `322` and `718`). The correct thing to do in this case is add coverage in isolation around `ASAPTimeslot` and then stub out the dependency in the test around `AvailableWantedTimes`.
 
 **Don't exercise non-test code that is not part of the subject**
 
